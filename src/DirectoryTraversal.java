@@ -4,7 +4,14 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 /**
- * THREAD UNSAFE SINGLETON
+ * Usage:
+ * DirectoryTraversal.path = "[valid path]";     <======   Set path
+ * DirectoryTraversal.saveTo = "[valid path]";   <======   and saveTo first
+ * DirectoryTraversal.run();
+ *
+ * Working:
+ * This class traverses through directories in the path provided
+ * and saves the directory content for TraversalConsole
  */
 public class DirectoryTraversal {
     public static String path = null;

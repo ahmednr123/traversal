@@ -3,12 +3,26 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Scanner;
 
+/**
+ * Usage:
+ * TraversalConsole.path = "[valid path]";   <======   Set path first
+ * TraversalConsole.run();
+ *
+ * Working:
+ * The application requires two runs for a new path
+ * First run traverses through the path and saves the file and directory info in a .hashmap file
+ * Second run loads the .hashmap file data and runs the console
+ *
+ * The application will automatically look for the file with the path data
+ *
+ * [ONE TIME USE ONLY, PER PROGRAM RUN]
+ */
 public class TraversalConsole {
 
     private TraversalConsole () {}
 
     private static HashMap<String, DirectoryData> hashmap = new HashMap<>();
-    public static String path = null;//"C:\\Users";
+    public static String path = null;
 
     public static int times = 0;
 
@@ -29,12 +43,14 @@ public class TraversalConsole {
                 BufferedReader reader = new BufferedReader(new FileReader(filename));
                 long startTime = System.currentTimeMillis();
 
+                // Local "line" variable
                 {
                     String line = reader.readLine();
                     DirectoryData dir = new DirectoryData(line);
                     hashmap.put(dir.getFullPath(), dir);
                 }
 
+                // Load data in background
                 (new Thread(() -> {
                     try {
                         while (reader.ready()) {
@@ -76,11 +92,20 @@ public class TraversalConsole {
         while (true) {
             if (!ERROR) {
                 System.out.println("Directory: " + path);
-                System.out.println("Inside: ");
+
+                System.out.println("====================================");
                 long startTime = System.currentTimeMillis();
                 DirectoryData root = hashmap.get(path);
                 System.out.println("Directories in hashmap: " + hashmap.size());
                 System.out.println("Time taken to get data: " + (System.currentTimeMillis() - startTime) + "ms");
+                System.out.println("====================================");
+
+                System.out.println("Inside: ");
+
+                if (root.getFileList().size() == 0) {
+                    System.out.println("(Empty Directory)");
+                }
+
                 for (FileData subFile : root.getFileList()) {
                     if (subFile.isDirectory()) {
                         System.out.print("[d] ");
