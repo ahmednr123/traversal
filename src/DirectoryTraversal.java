@@ -1,8 +1,5 @@
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.ObjectOutputStream;
-import java.util.HashMap;
+import java.io.*;
+import java.util.ArrayList;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -15,7 +12,7 @@ public class DirectoryTraversal {
 
     private static int activeThreads = 0;
     private static long startTime = 0;
-    private static HashMap<String, DirectoryData> hashmap = new HashMap<>();
+    private static ArrayList<DirectoryData> hashmap = new ArrayList<>();
 
     private static ExecutorService executor = Executors.newFixedThreadPool(100);
 
@@ -35,7 +32,7 @@ public class DirectoryTraversal {
             throw new RuntimeException("The path doesn't exist or is not a directory");
 
         File[] files = pathFile.listFiles();
-        addToHashmap(pathFile.getAbsolutePath(), new DirectoryData(pathFile));
+        addToHashmap(new DirectoryData(pathFile));
 
         System.out.println("Traversing directory...");
         showFiles(files);
@@ -49,19 +46,22 @@ public class DirectoryTraversal {
         activeThreads--;
     }
 
-    private static synchronized void addToHashmap (String path, DirectoryData data) {
-        hashmap.put(path, data);
+    private static synchronized void addToHashmap (DirectoryData data) {
+        hashmap.add(data);
     }
 
     private static synchronized void saveHashmapFile () {
+        System.out.println("Saving File... (will take longer)\n");
         try {
             FileOutputStream fileOut = new FileOutputStream(saveTo);
-            ObjectOutputStream out = new ObjectOutputStream(fileOut);
-            out.writeObject(hashmap);
+            OutputStreamWriter out = new OutputStreamWriter(fileOut);
+            for (DirectoryData data:hashmap) {
+                out.write(data.toString()+"\n");
+            }
             out.close();
             fileOut.close();
             System.out.println("Serialized data is saved in " + saveTo);
-            System.out.println("Restart application to view traverse directory");
+            System.out.println("Restart application to traverse directory");
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -72,7 +72,7 @@ public class DirectoryTraversal {
         for (File file : files) {
             if (file.isDirectory()) {
                 increment();
-                addToHashmap(file.getAbsolutePath(), new DirectoryData(file));
+                addToHashmap(new DirectoryData(file));
                 executor.execute(new Thread(() -> {
                     showFiles(file.listFiles());
                     if (activeThreads <= 1) {

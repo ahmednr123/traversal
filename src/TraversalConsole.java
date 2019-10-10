@@ -1,16 +1,18 @@
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.ObjectInputStream;
+import java.io.*;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Scanner;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class TraversalConsole {
 
     private TraversalConsole () {}
 
-    private static HashMap<String, DirectoryData> hashmap = null;
+    private static HashMap<String, DirectoryData> hashmap = new HashMap<>();
     public static String path = null;//"C:\\Users";
+
+    public static int times = 0;
 
     public static void run () {
         if (path == null) {
@@ -26,18 +28,31 @@ public class TraversalConsole {
             DirectoryTraversal.run();
         } else {
             try {
-                FileInputStream fileIn = new FileInputStream(filename);
+                BufferedReader reader = new BufferedReader(new FileReader(filename));
                 long startTime = System.currentTimeMillis();
-                ObjectInputStream in = new ObjectInputStream(fileIn);
-                hashmap = (HashMap<String, DirectoryData>) in.readObject();
+                while (reader.ready() && times < 1000) {
+                    String line = reader.readLine();
+                    DirectoryData dir = new DirectoryData(line);
+                    hashmap.put(dir.getFullPath(), dir);
+                    times++;
+                }
+
+                (new Thread(() -> {
+                    try {
+                        while (reader.ready()) {
+                            String line = reader.readLine();
+                            DirectoryData dir = new DirectoryData(line);
+                            hashmap.put(dir.getFullPath(), dir);
+                        }
+                        reader.close();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                })).start();
+
                 System.out.println("Time taken to load the file: " + (double)(System.currentTimeMillis() - startTime)/1000 + " secs");
-                in.close();
-                fileIn.close();
             } catch (IOException e) {
                 System.out.println("HashMap File Error!");
-                e.printStackTrace();
-            } catch (ClassNotFoundException e) {
-                System.out.println("HashMap Class Error!");
                 e.printStackTrace();
             }
 
@@ -57,41 +72,66 @@ public class TraversalConsole {
     }
 
     private static void console (String path) {
-        if (path != null) {
-            System.out.println("Directory: " + path);
-            System.out.println("Inside: ");
-            DirectoryData root = hashmap.get(path);
-            for (FileData subFile : root.getFileList()) {
-                if (subFile.isDirectory()) {
-                    System.out.print("[d] ");
-                } else {
-                    System.out.print("[-] ");
+        boolean ERROR = false;
+        while (true) {
+            if (!ERROR) {
+                System.out.println("Directory: " + path);
+                System.out.println("Inside: ");
+                long startTime = System.currentTimeMillis();
+                DirectoryData root = hashmap.get(path);
+                System.out.println("Directories in hashmap: " + hashmap.size());
+                System.out.println("Time taken to get data: " + (System.currentTimeMillis() - startTime) + "ms");
+                for (FileData subFile : root.getFileList()) {
+                    if (subFile.isDirectory()) {
+                        System.out.print("[d] ");
+                    } else {
+                        System.out.print("[-] ");
+                    }
+                    System.out.print(subFile.getFilename() + "\n");
                 }
-                System.out.print(subFile.getFilename() + "\n");
             }
-        }
 
-        System.out.print("\n>  ");
-        Scanner in = new Scanner(System.in);
-        String next_dir = in.nextLine();
-        String next_path = path;
+            ERROR = false;
 
-        if (path.charAt(path.length() - 1) != '\\') {
-            next_path += "\\" + next_dir;
-        } else {
-            next_path += next_dir;
-        }
+            System.out.print("\n>  ");
+            Scanner in = new Scanner(System.in);
+            String next_dir = in.nextLine();
+            String next_path = path;
 
+            if (next_dir.equals("..")) {
+                String[] path_arr = next_path.split("\\\\");
+                next_path = String.join("\\", Arrays.copyOfRange(path_arr, 0, path_arr.length-1));
 
-        if (next_dir.equals("exit")) {
-            System.exit(0);
-        }
+                if (!hashmap.containsKey(next_path)) {
+                    System.out.println("Directory: " + path + "\\");
+                    System.out.println("Already in root");
+                    ERROR = true;
+                    continue;
+                } else {
+                    path = next_path;
+                    continue;
+                }
+            }
 
-        if (hashmap.containsKey(next_path)) {
-            console(next_path);
-        } else {
-            System.out.println("Wrong Input or [" + next_dir + "] is a file");
-            console(null);
+            if (path.charAt(path.length() - 1) != '\\') {
+                next_path += "\\" + next_dir;
+            } else {
+                next_path += next_dir;
+            }
+
+            if (next_dir.equals("exit")) {
+                break;
+            }
+
+            if (hashmap.containsKey(next_path)) {
+                //console(next_path);
+                path = next_path;
+                continue;
+            } else {
+                System.out.println("Wrong Input or [" + next_dir + "] is a file");
+                ERROR = true;
+                continue;
+            }
         }
     }
 
