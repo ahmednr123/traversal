@@ -30,11 +30,11 @@ public class TraversalConsole {
             try {
                 BufferedReader reader = new BufferedReader(new FileReader(filename));
                 long startTime = System.currentTimeMillis();
-                while (reader.ready() && times < 1000) {
+
+                {
                     String line = reader.readLine();
                     DirectoryData dir = new DirectoryData(line);
                     hashmap.put(dir.getFullPath(), dir);
-                    times++;
                 }
 
                 (new Thread(() -> {
