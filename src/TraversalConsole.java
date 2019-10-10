@@ -1,9 +1,7 @@
 import java.io.*;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Scanner;
-import java.util.concurrent.ConcurrentHashMap;
 
 public class TraversalConsole {
 
@@ -71,6 +69,8 @@ public class TraversalConsole {
         return (code + "");
     }
 
+    // BAD CODE
+    // NEEDS A REWRITE
     private static void console (String path) {
         boolean ERROR = false;
         while (true) {
@@ -102,6 +102,17 @@ public class TraversalConsole {
                 String[] path_arr = next_path.split("\\\\");
                 next_path = String.join("\\", Arrays.copyOfRange(path_arr, 0, path_arr.length-1));
 
+                if (path.charAt(path.length()-2) == ':') {
+                    System.out.println("Directory: " + path);
+                    System.out.println("Already in root");
+                    //path = TraversalConsole.path;
+                    ERROR = true;
+                    continue;
+                }
+
+                if (next_path.charAt(next_path.length()-1) == ':')
+                    next_path += '\\';
+
                 if (!hashmap.containsKey(next_path)) {
                     System.out.println("Directory: " + path + "\\");
                     System.out.println("Already in root");
@@ -124,7 +135,6 @@ public class TraversalConsole {
             }
 
             if (hashmap.containsKey(next_path)) {
-                //console(next_path);
                 path = next_path;
                 continue;
             } else {
