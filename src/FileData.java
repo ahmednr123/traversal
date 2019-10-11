@@ -5,7 +5,9 @@ class FileData implements java.io.Serializable {
     private String fullPath = null;
     private String filename = null;
 
-    enum State { IS_DIRECTORY, FILENAME };
+    private long size = -1;
+
+    enum State { IS_DIRECTORY, FILENAME, SIZE };
 
     FileData (String codedString, String fullPath) {
         if (codedString.equals("null")) {
@@ -38,8 +40,15 @@ class FileData implements java.io.Serializable {
                     if (ch == '|') {
                         filename = buffer;
                         buffer = "";
+                        state = State.SIZE;
                     }
                     break;
+
+                case SIZE:
+                    if (ch == '|') {
+                        size = Long.parseLong(buffer);
+                        buffer = "";
+                    }
             }
 
             if (fullPath.charAt(fullPath.length() - 1) == '\\') {
@@ -56,21 +65,36 @@ class FileData implements java.io.Serializable {
         isDirectory = file.isDirectory();
         fullPath = file.getAbsolutePath();
         filename = file.getName();
+        if (!isDirectory)
+            size = file.length();
     }
 
     public String getFilename () {
         return filename;
     }
 
+    public long getSize () {
+        return size;
+    }
+
+    public void setSize (long size) {
+        this.size = size;
+    }
+
     public boolean isDirectory () {
         return isDirectory;
+    }
+
+    public String getFullPath () {
+        return fullPath;
     }
 
     public String toString () {
         String str = "";
 
         str += isDirectory + "|";
-        str += filename;
+        str += filename + "|";
+        str += size;
 
         return str;
     }

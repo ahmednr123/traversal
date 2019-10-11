@@ -4,9 +4,10 @@ import java.util.ArrayList;
 public class DirectoryData implements java.io.Serializable {
     private String fullPath = null;
     private String directoryName = null;
+    private long size = -1;
 
     private ArrayList<FileData> fileList = new ArrayList<>();
-    enum State { FULL_PATH, DIRECTORY_NAME, FILES };
+    enum State { FULL_PATH, DIRECTORY_NAME, SIZE, FILES };
 
     DirectoryData (String codedString) {
         int index = 0;
@@ -40,6 +41,18 @@ public class DirectoryData implements java.io.Serializable {
                             throw new RuntimeException("Parsing error");
 
                         directoryName = buffer;
+                        buffer = "";
+                        index++;
+                        state = State.SIZE;
+                    }
+                    break;
+
+                case SIZE:
+                    if (ch == '|') {
+                        if (codedString.charAt(index+1) != '|')
+                            throw new RuntimeException("Parsing error");
+
+                        size = Long.parseLong(buffer);
                         buffer = "";
                         index++;
                         state = State.FILES;
@@ -81,6 +94,14 @@ public class DirectoryData implements java.io.Serializable {
         return fileList;
     }
 
+    public void setSize (long size) {
+        this.size = size;
+    }
+
+    public long getSize () {
+        return size;
+    }
+
     public String getFullPath () {
         return fullPath;
     }
@@ -90,6 +111,7 @@ public class DirectoryData implements java.io.Serializable {
 
         str += fullPath + "||";
         str += directoryName + "||";
+        str += size + "||";
 
         for (FileData file : fileList)
             str += file.toString() + "||";

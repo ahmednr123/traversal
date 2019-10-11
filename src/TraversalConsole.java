@@ -51,7 +51,7 @@ public class TraversalConsole {
                 }
 
                 // Load data in background
-                (new Thread(() -> {
+                //(new Thread(() -> {
                     try {
                         while (reader.ready()) {
                             String line = reader.readLine();
@@ -62,7 +62,9 @@ public class TraversalConsole {
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
-                })).start();
+                //})).start();
+
+                GetDirectorySize.run(path, hashmap);
 
                 System.out.println("Time taken to load the file: " + (double)(System.currentTimeMillis() - startTime)/1000 + " secs");
             } catch (IOException e) {
@@ -106,14 +108,22 @@ public class TraversalConsole {
                     System.out.println("(Empty Directory)");
                 }
 
+                String leftAlignFormat = "|%-1s | %-100s | %-10s |%n";
+
+                System.out.format("+---+------------------------------------------------------------------------------------------------------+------------+%n");
+                System.out.format("|   | Name                                                                                                 | Size       |%n");
+                System.out.format("+---+------------------------------------------------------------------------------------------------------+------------+%n");
+
                 for (FileData subFile : root.getFileList()) {
                     if (subFile.isDirectory()) {
-                        System.out.print("[d] ");
+                        System.out.format(leftAlignFormat, " d", subFile.getFilename(),
+                                size_string(hashmap.get(subFile.getFullPath()).getSize()));
                     } else {
-                        System.out.print("[-] ");
+                        System.out.format(leftAlignFormat, " -", subFile.getFilename(),
+                                size_string(subFile.getSize()));
                     }
-                    System.out.print(subFile.getFilename() + "\n");
                 }
+                System.out.format("+---+------------------------------------------------------------------------------------------------------+------------+%n");
             }
 
             ERROR = false;
@@ -168,6 +178,22 @@ public class TraversalConsole {
                 continue;
             }
         }
+    }
+
+    private static String size_string (long size) {
+        String size_str = "";
+        String[] sizes = {"B","KB","MB","GB","TB"};
+        int index = 0;
+        float f_size = (float)size;
+
+        while ((f_size/1024) >= 1) {
+            f_size = f_size/1024;
+            index++;
+        }
+
+        size_str = String.format("%.2f %s", f_size, sizes[index]);
+
+        return size_str;
     }
 
 }
