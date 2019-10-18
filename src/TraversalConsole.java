@@ -51,20 +51,19 @@ public class TraversalConsole {
                 }
 
                 // Load data in background
-                //(new Thread(() -> {
+                (new Thread(() -> {
                     try {
                         while (reader.ready()) {
                             String line = reader.readLine();
                             DirectoryData dir = new DirectoryData(line);
                             hashmap.put(dir.getFullPath(), dir);
                         }
+                        GetDirectorySize.run(path, hashmap);
                         reader.close();
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
-                //})).start();
-
-                GetDirectorySize.run(path, hashmap);
+                })).start();
 
                 System.out.println("Time taken to load the file: " + (double)(System.currentTimeMillis() - startTime)/1000 + " secs");
             } catch (IOException e) {
@@ -116,8 +115,12 @@ public class TraversalConsole {
 
                 for (FileData subFile : root.getFileList()) {
                     if (subFile.isDirectory()) {
-                        System.out.format(leftAlignFormat, " d", subFile.getFilename(),
-                                size_string(hashmap.get(subFile.getFullPath()).getSize()));
+                        if (hashmap.get(subFile.getFullPath()) == null)
+                            System.out.format(leftAlignFormat, " d", subFile.getFilename(),
+                                    size_string(null));
+                        else
+                            System.out.format(leftAlignFormat, " d", subFile.getFilename(),
+                                    size_string(hashmap.get(subFile.getFullPath()).getSize()));
                     } else {
                         System.out.format(leftAlignFormat, " -", subFile.getFilename(),
                                 size_string(subFile.getSize()));
@@ -180,7 +183,9 @@ public class TraversalConsole {
         }
     }
 
-    private static String size_string (long size) {
+    private static String size_string (Long size) {
+        if (size == null || size < 0) return "-";
+
         String size_str = "";
         String[] sizes = {"B","KB","MB","GB","TB"};
         int index = 0;

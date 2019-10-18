@@ -61,13 +61,11 @@ public class DirectoryTraversal {
     private static synchronized void saveHashmapFile () {
         System.out.println("Saving File... (will take longer)\n");
         try {
-            FileOutputStream fileOut = new FileOutputStream(saveTo);
-            OutputStreamWriter out = new OutputStreamWriter(fileOut);
+            BufferedWriter writer = new BufferedWriter ( new FileWriter ( saveTo) );
             for (DirectoryData data:hashmap) {
-                out.write(data.toString()+"\n");
+                writer.write(data.toString()+"\n");
             }
-            out.close();
-            fileOut.close();
+            writer.close();
             System.out.println("Serialized data is saved in " + saveTo);
             System.out.println("Restart application to traverse directory");
         } catch (IOException e) {

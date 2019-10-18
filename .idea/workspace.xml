@@ -2,11 +2,9 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="826042c6-af46-435e-97a0-a12d5088c2bf" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/src/GetDirectorySize.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/DirectoryData.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/DirectoryData.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/DirectoryTraversal.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/DirectoryTraversal.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/FileData.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/FileData.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/MainClass.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/MainClass.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/TraversalConsole.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/TraversalConsole.java" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -29,7 +27,7 @@
   <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
   <component name="PropertiesComponent">
     <property name="ASKED_ADD_EXTERNAL_FILES" value="true" />
-    <property name="last_opened_file_path" value="C:/Program Files/Apache Software Foundation/Tomcat 9.0/webapps/FileApp" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/../TrafficSimulator" />
     <property name="run.code.analysis.last.selected.profile" value="pProject Default" />
   </component>
   <component name="RunDashboard">
